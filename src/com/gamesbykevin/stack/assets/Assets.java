@@ -121,8 +121,6 @@ public class Assets
      */
     public enum AudioMenuKey
     {
-    	MenuTheme,
-    	Selection,
     }
     
     /**
@@ -131,11 +129,6 @@ public class Assets
      */
     public enum AudioGameKey
     {
-    	Invalid,
-    	NotSolved,
-    	Remove,
-    	Solved,
-    	MainTheme,
     }
     
     /**
@@ -143,7 +136,7 @@ public class Assets
      */
     public static final void playMenuSelection()
     {
-    	Audio.play(AudioMenuKey.Selection);
+    	//Audio.play(AudioMenuKey.Selection);
     }
     
     /**
@@ -151,7 +144,7 @@ public class Assets
      */
     public static final void playInvalidSelection()
     {
-    	Audio.play(AudioGameKey.Invalid);
+    	//Audio.play(AudioGameKey.Invalid);
     }
     
     /**
@@ -159,7 +152,7 @@ public class Assets
      */
     public static final void playMenuTheme()
     {
-    	Audio.play(Assets.AudioMenuKey.MenuTheme, true);
+    	//Audio.play(Assets.AudioMenuKey.MenuTheme, true);
     }
     
     /**
@@ -167,7 +160,7 @@ public class Assets
      */
     public static final void playMainTheme()
     {
-    	Audio.play(Assets.AudioGameKey.MainTheme, true);
+    	//Audio.play(Assets.AudioGameKey.MainTheme, true);
     }
     
     /**
