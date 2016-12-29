@@ -47,22 +47,22 @@ public final class ScreenManager implements Screen, Disposable
     /**
      * The x-coordinate where we want the logo to be displayed
      */
-    public static final int LOGO_X = 40;
+    public static final int LOGO_X = 38;
     
     /**
      * The y-coordinate where we want the logo to be displayed
      */
-    public static final int LOGO_Y = 15;
+    public static final int LOGO_Y = 5;
     
     /**
      * The x-coordinate where we want to start putting the buttons
      */
-    public static final int BUTTON_X = 140;
+    public static final int BUTTON_X = 127;
     
     /**
      * The y-coordinate where we want to start putting the buttons
      */
-    public static final int BUTTON_Y = 115;
+    public static final int BUTTON_Y = 175;
     
     /**
      * The y-coordinate spacing between each button
@@ -82,7 +82,7 @@ public final class ScreenManager implements Screen, Disposable
     /**
      * Default font size
      */
-    public static final float DEFAULT_FONT_SIZE = 24f;
+    public static final float DEFAULT_FONT_SIZE = 36f;
     
     /**
      * Create our main screen

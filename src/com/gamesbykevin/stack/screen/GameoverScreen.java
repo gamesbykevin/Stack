@@ -334,9 +334,6 @@ public class GameoverScreen implements Screen, Disposable
             {
             	buttons.get(key).render(canvas, getScreen().getPaint());
             }
-            
-            //render winner text
-        	canvas.drawBitmap(Images.getImage(Assets.ImageMenuKey.Winner), TEXT_X, TEXT_Y, null);
         }
     }
     

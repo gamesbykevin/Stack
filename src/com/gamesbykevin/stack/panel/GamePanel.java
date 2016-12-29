@@ -65,6 +65,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback, Di
             
         //make game panel focusable = true so it can handle events
         super.setFocusable(true);
+        
+        //create the screens that we will be using for our game
+        
     }
     
     /**

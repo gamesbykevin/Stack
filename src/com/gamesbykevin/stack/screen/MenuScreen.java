@@ -30,11 +30,6 @@ public class MenuScreen implements Screen, Disposable
     private HashMap<Key, Button> buttons;
     
     /**
-     * Button text to display to exit the game
-     */
-    public static final String BUTTON_TEXT_EXIT_GAME = "Exit";
-    
-    /**
      * Button text to display to rate the game
      */
     public static final String BUTTON_TEXT_RATE_APP = "Rate";
@@ -59,7 +54,7 @@ public class MenuScreen implements Screen, Disposable
      */
     private enum Key
     {
-        Start, Exit, Settings, Instructions, More, Rate, Twitter, Facebook
+        Start, Settings, Instructions, More, Rate, Twitter, Facebook, Youtube
     }
     
     //the user selection from the menu
@@ -71,32 +66,37 @@ public class MenuScreen implements Screen, Disposable
     /**
      * Dimension of the standard menu button
      */
-    public static final int BUTTON_WIDTH = 200;
+    public static final int BUTTON_WIDTH = 225;
     
     /**
      * Dimension of the standard menu button
      */
-    public static final int BUTTON_HEIGHT = 87;
+    public static final int BUTTON_HEIGHT = 100;
     
     /**
      * The size of our icon buttons
      */
-    public static final int ICON_DIMENSION = 90;
+    public static final int ICON_DIMENSION = 72;
     
     /**
      * x-coordinate for the instructions icon
      */
-    public static final int ICON_X_INSTRUCTIONS = (int)((GamePanel.WIDTH * .33) - ((GamePanel.WIDTH * .33) / 2) - (MenuScreen.ICON_DIMENSION / 2));
+    public static final int ICON_X_INSTRUCTIONS = (int)((GamePanel.WIDTH * .25) - ((GamePanel.WIDTH * .25) / 2) - (MenuScreen.ICON_DIMENSION / 2));
     
     /**
      * x-coordinate for the facebook icon
      */
-    public static final int ICON_X_FACEBOOK = (int)((GamePanel.WIDTH * .66) - ((GamePanel.WIDTH * .33) / 2) - (MenuScreen.ICON_DIMENSION / 2));
+    public static final int ICON_X_FACEBOOK = (int)((GamePanel.WIDTH * .50) - ((GamePanel.WIDTH * .25) / 2) - (MenuScreen.ICON_DIMENSION / 2));
     
     /**
      * x-coordinate for the twitter icon
      */
-    public static final int ICON_X_TWITTER = (int)((GamePanel.WIDTH * 1.0) - ((GamePanel.WIDTH * .33) / 2) - (MenuScreen.ICON_DIMENSION / 2));
+    public static final int ICON_X_TWITTER = (int)((GamePanel.WIDTH * .75) - ((GamePanel.WIDTH * .25) / 2) - (MenuScreen.ICON_DIMENSION / 2));
+    
+    /**
+     * x-coordinate for the youtube icon
+     */
+    public static final int ICON_X_YOUTUBE = (int)((GamePanel.WIDTH * 1.0) - ((GamePanel.WIDTH * .25) / 2) - (MenuScreen.ICON_DIMENSION / 2));
     
     /**
      * y-coordinate for the icons
@@ -134,9 +134,6 @@ public class MenuScreen implements Screen, Disposable
         y += ScreenManager.BUTTON_Y_INCREMENT;
         addButton(x, y, BUTTON_TEXT_MORE_GAMES, Key.More, imageKey);
         
-        y += ScreenManager.BUTTON_Y_INCREMENT;
-        addButton(x, y, BUTTON_TEXT_EXIT_GAME, Key.Exit, imageKey);
-        
         x = ICON_X_INSTRUCTIONS;
         y = ICON_Y;
         addButton(x, y, Key.Instructions, Assets.ImageMenuKey.Instructions);
@@ -146,6 +143,9 @@ public class MenuScreen implements Screen, Disposable
         
         x = ICON_X_TWITTER;
         addButton(x, y, Key.Twitter, Assets.ImageMenuKey.Twitter);
+
+        x = ICON_X_YOUTUBE;
+        addButton(x, y, Key.Youtube, Assets.ImageMenuKey.Youtube);
         
         //set the size and bounds of the buttons
         for (Key key : Key.values())
@@ -158,6 +158,7 @@ public class MenuScreen implements Screen, Disposable
 	        	case Twitter:
 	        	case Facebook:
 	        	case Instructions:
+	        	case Youtube:
                 	button.setWidth(ICON_DIMENSION);
                 	button.setHeight(ICON_DIMENSION);
                 	button.updateBounds();
@@ -260,18 +261,6 @@ public class MenuScreen implements Screen, Disposable
         		{
         			switch (key)
         			{
-        				//exit game here to avoid infinite loop
-	        			case Exit:
-	        				
-				            //play sound effect
-							Assets.playMenuSelection();
-				            
-				            //exit game
-				            getScreen().getPanel().getActivity().finish();
-				            
-				            //we are done
-				            break;
-        			
 	        			default:
 	        				//everything else we store the selection and change in update()
 	        				setSelection(key);
@@ -327,6 +316,16 @@ public class MenuScreen implements Screen, Disposable
                     //we do not need to continue
 	                break;
         			
+        		case Youtube:
+                    //play sound effect
+        			Assets.playMenuSelection();
+                    
+                    //go to instructions
+                    getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_YOUTUBE_URL);
+                    
+                    //we do not need to continue
+	                break;
+	                
         		case Start:
                     //flag reset
                     reset = true;
@@ -426,11 +425,11 @@ public class MenuScreen implements Screen, Disposable
 		        		case Instructions:
 		        		case Facebook:
 		        		case Twitter:
+		        		case Youtube:
 		        			button.render(canvas);
 		        			break;
 		        			
 		        		case Start:
-	        			case Exit:
 	        			case Settings: 
         				case More: 
     					case Rate:

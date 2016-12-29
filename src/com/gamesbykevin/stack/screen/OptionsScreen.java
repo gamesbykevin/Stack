@@ -36,8 +36,8 @@ public class OptionsScreen implements Screen, Disposable
     //buttons to access each button in the list
     public enum Key
     {
-    	Back, Sound, Vibrate, Difficulty,  
-    	Instructions, Facebook, Twitter
+    	Back, Sound, Vibrate,   
+    	Instructions, Facebook, Twitter, Youtube
     }
     
     //the user selection
@@ -65,10 +65,6 @@ public class OptionsScreen implements Screen, Disposable
         y += ScreenManager.BUTTON_Y_INCREMENT;
         addButtonVibrate(x, y);
         
-        //add difficulty
-        y += ScreenManager.BUTTON_Y_INCREMENT;
-        addButtonDifficulty(x, y);
-        
         //the back button
         y += ScreenManager.BUTTON_Y_INCREMENT;
         addButtonBack(x, y);
@@ -86,6 +82,7 @@ public class OptionsScreen implements Screen, Disposable
 	        	case Instructions:
 	        	case Facebook:
 	        	case Twitter:
+	        	case Youtube:
 	        		button.setWidth(MenuScreen.ICON_DIMENSION);
 	            	button.setHeight(MenuScreen.ICON_DIMENSION);
 	            	button.updateBounds();
@@ -138,6 +135,11 @@ public class OptionsScreen implements Screen, Disposable
         tmp.setX(MenuScreen.ICON_X_TWITTER);
         tmp.setY(MenuScreen.ICON_Y);
         this.buttons.put(Key.Twitter, tmp);
+        
+        tmp = new Button(Images.getImage(Assets.ImageMenuKey.Youtube));
+        tmp.setX(MenuScreen.ICON_X_YOUTUBE);
+        tmp.setY(MenuScreen.ICON_Y);
+        this.buttons.put(Key.Youtube, tmp);
     }
     
     private void addButtonBack(final int x, final int y)
@@ -157,24 +159,6 @@ public class OptionsScreen implements Screen, Disposable
         button.setX(x);
         button.setY(y);
         this.buttons.put(Key.Sound, button);
-    }
-
-    private void addButtonDifficulty(final int x, final int y)
-    {
-        Button button = new Button(Images.getImage(Assets.ImageMenuKey.Button));
-        button.addDescription("Colors: 3");
-        button.addDescription("Colors: 4");
-        button.addDescription("Colors: 5");
-        button.addDescription("Colors: 6");
-        button.addDescription("Colors: 7");
-        button.addDescription("Colors: 8");
-        button.setX(x);
-        button.setY(y);
-        
-        //default value
-        button.setIndex(1);
-        
-    	this.buttons.put(Key.Difficulty, button);
     }
     
     private void addButtonVibrate(final int x, final int y)
@@ -248,7 +232,6 @@ public class OptionsScreen implements Screen, Disposable
 						case Back:
 						case Sound:
 						case Vibrate:
-						case Difficulty:
 							button.positionText(getScreen().getPaint());
 							break;
 							
@@ -256,6 +239,7 @@ public class OptionsScreen implements Screen, Disposable
 						case Instructions:
 						case Facebook:
 						case Twitter:
+						case Youtube:
 							break;
 							
 						default:
@@ -336,7 +320,6 @@ public class OptionsScreen implements Screen, Disposable
 	                break;
 	                
 				case Vibrate:
-				case Difficulty:
 					
 					//change index
 					button.setIndex(button.getIndex() + 1);
@@ -346,7 +329,7 @@ public class OptionsScreen implements Screen, Disposable
 					
 	                //play sound effect
 			        Assets.playMenuSelection();
-	                
+			        
 	                //end of case
 	                break;
 	                
@@ -400,6 +383,17 @@ public class OptionsScreen implements Screen, Disposable
 	                //end of case
 	                break;
 				
+				case Youtube:
+					
+	                //play sound effect
+					Assets.playMenuSelection();
+	                
+	                //go to youtube
+					getScreen().getPanel().getActivity().openWebpage(MainActivity.WEBPAGE_YOUTUBE_URL);
+	                
+	                //end of case
+	                break;
+	                
 				default:
 	            	throw new Exception("Key not setup here: " + selection);
     		}
@@ -425,13 +419,13 @@ public class OptionsScreen implements Screen, Disposable
 	    			case Back:
 	    			case Sound:
 	    			case Vibrate:
-	    			case Difficulty:
 	    				buttons.get(key).render(canvas, getScreen().getPaint());
 	    				break;
 	    				
 	    			case Instructions:
 	    			case Facebook:
 	    			case Twitter:
+	    			case Youtube:
 	    				buttons.get(key).render(canvas);
 	    				break;
 	    				

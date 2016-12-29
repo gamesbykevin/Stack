@@ -55,9 +55,6 @@ public final class Game implements IGame
         //check the options to set the size of our board
         final int size;
         
-        //set the number of colors index
-        final int numberColorsIndex = getScreen().getScreenOptions().getIndex(OptionsScreen.Key.Difficulty); 
-        
         //create our score card
         this.score = new Score(screen.getPanel().getActivity());
     }

@@ -75,18 +75,13 @@ public class Assets
     	Button, 
     	Cancel, 
     	Confirm, 
-    	LevelLocked,
-    	LevelOpen,
     	ExitText,
     	Facebook, 
     	Instructions,
-    	InstructionsScreenshot,
     	Logo, 
-    	PageNext,
-    	PagePrevious,
     	Splash, 
     	Twitter, 
-    	Winner
+    	Youtube
     }
     
     /**
@@ -95,15 +90,8 @@ public class Assets
      */
     public enum ImageGameKey
     {
-    	Attempts,
-    	ConfirmEntryEnabled,
-    	ConfirmEntryDisabled,
-    	Entry,
     	HomeNavigation,
-    	ScreenInstructions,
-    	InGameLogo,
-    	Numbers,
-    	Selections
+    	Numbers
     }
     
     /**
@@ -112,7 +100,7 @@ public class Assets
      */
     public enum TextKey
     {
-        Levels
+        //Default
     }
     
     /**

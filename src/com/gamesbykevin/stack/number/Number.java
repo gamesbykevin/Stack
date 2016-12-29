@@ -13,8 +13,8 @@ import android.graphics.Canvas;
 public class Number extends Entity implements Disposable
 {
 	//the dimensions of each number animation
-	private static final int NUMBER_ANIMATION_WIDTH = 145;
-	private static final int NUMBER_ANIMATION_HEIGHT = 166;
+	private static final int NUMBER_ANIMATION_WIDTH = 128;
+	private static final int NUMBER_ANIMATION_HEIGHT = 152;
 	
 	//the dimensions of each number render
 	public static final int NUMBER_RENDER_WIDTH = 24;
@@ -26,8 +26,7 @@ public class Number extends Entity implements Disposable
 	private enum Key
 	{
 		Zero(0), One(1), Two(2), Three(3), Four(4), 
-		Five(5), Six(6), Seven(7), Eight(8), Nine(9), 
-		Colon(10);
+		Five(5), Six(6), Seven(7), Eight(8), Nine(9);
 		
 		private int x, y = 0;
 		
@@ -150,10 +149,6 @@ public class Number extends Entity implements Disposable
     		//identify which animation
     		switch (characters[i])
     		{
-	    		case ':':
-	    			tmp = Key.Colon;
-	    			break;
-			
 	    		case '0':
 					tmp = Key.Zero;
 	    			break;
