@@ -66,7 +66,7 @@ public final class GameHelper
     	if (RESET)
     	{
     		//reset attempts count
-    		game.getNumber().setNumber(1);
+    		game.getNumber().setNumber(0);
     		
     		//flag reset false now that we have finished
     		RESET = false;
@@ -92,6 +92,17 @@ public final class GameHelper
     			//no need to continue
     			return;
     		}
+    		else
+    		{
+    			game.getPiece().setCol(game.getPiece().getCol() + game.getPiece().getDX());
+    			game.getPiece().setRow(game.getPiece().getRow() + game.getPiece().getDY());
+    			
+    			//make sure we stay in bounds
+    			if (game.getPiece().getCol() < -20 || game.getPiece().getCol() > 20)
+    				game.getPiece().setDX(-game.getPiece().getDX());
+    			if (game.getPiece().getRow() < -20 || game.getPiece().getRow() > 20)
+    				game.getPiece().setDY(-game.getPiece().getDY());
+    		}
     	}
     }
     
@@ -110,7 +121,11 @@ public final class GameHelper
     	}
     	else
     	{
-    		
+    		//render our number of successful attempts
+    		game.getNumber().render(canvas);
+
+    		//render the current piece
+    		game.getPiece().render(canvas, Images.getImage(Assets.ImageGameKey.Block));
     	}
     }
     

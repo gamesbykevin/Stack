@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.os.Vibrator;
 import android.view.MotionEvent;
 
+import com.gamesbykevin.stack.board.Piece;
 import com.gamesbykevin.stack.number.Number;
 import com.gamesbykevin.stack.score.Score;
 import com.gamesbykevin.stack.screen.OptionsScreen;
@@ -25,7 +26,10 @@ public final class Game implements IGame
     private Paint paint;
     
     //the duration we want to vibrate the phone for
-    private static final long VIBRATION_DURATION = 500L;
+    private static final long VIBRATION_DURATION = 750L;
+    
+    //our current piece
+    private Piece piece;
     
     /**
      * Our value to identify if vibrate is enabled
@@ -50,15 +54,26 @@ public final class Game implements IGame
         
         //create new number object and position it
         this.number = new Number();
-        //this.number.setNumber(0, GameHelper.ATTEMPTS_X + Images.getImage(Assets.ImageGameKey.Attempts).getWidth() + 5, GameHelper.ATTEMPTS_Y);
-        
-        //check the options to set the size of our board
-        final int size;
         
         //create our score card
         this.score = new Score(screen.getPanel().getActivity());
+        
+        //create a new piece
+        this.piece = new Piece(10, 10);
+        
+        //set off the screen
+        this.piece.setCol(0);
+        this.piece.setRow(-20);
+        
+        //assign the velocity
+        this.piece.setDX(0);
+        this.piece.setDY(.5);
     }
     
+    /**
+     * Get the score object
+     * @return Our object used for tracking the high score
+     */
     public Score getScore()
     {
     	return this.score;
@@ -80,6 +95,11 @@ public final class Game implements IGame
     public ScreenManager getScreen()
     {
         return this.screen;
+    }
+    
+    public Piece getPiece()
+    {
+    	return this.piece;
     }
     
     /**

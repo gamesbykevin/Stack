@@ -14,7 +14,7 @@ public class MainThread extends Thread
     /**
      * Is debug mode enabled?
      */
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     
     //the assigned frames per second for this game
     public static final int FPS = 30;
@@ -124,8 +124,8 @@ public class MainThread extends Thread
                 if (waitTime < 1)
                 {
                     //if debugging alert this update took longer than expected
-                    if (DEBUG);
-                    	//System.out.println("Thread update took longer than expected: " + waitTime);
+                    if (DEBUG)
+                    	System.out.println("Thread update took longer than expected: " + waitTime);
                     
                     //make sure we sleep at least 1 millisecond
                     waitTime = 1;

@@ -7,6 +7,7 @@ import com.gamesbykevin.androidframework.base.Entity;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.stack.assets.Assets;
+import com.gamesbykevin.stack.panel.GamePanel;
 
 import android.graphics.Canvas;
 
@@ -17,8 +18,11 @@ public class Number extends Entity implements Disposable
 	private static final int NUMBER_ANIMATION_HEIGHT = 152;
 	
 	//the dimensions of each number render
-	public static final int NUMBER_RENDER_WIDTH = 24;
-	public static final int NUMBER_RENDER_HEIGHT = 28;
+	public static final int NUMBER_RENDER_WIDTH = NUMBER_ANIMATION_WIDTH;
+	public static final int NUMBER_RENDER_HEIGHT = NUMBER_ANIMATION_HEIGHT;
+	
+	//the starting y-coordinate where we want to render the number
+	private static final int START_Y = 10;
 	
 	/**
 	 * The key for each number animation
@@ -53,6 +57,9 @@ public class Number extends Entity implements Disposable
 		//set the dimensions
 		super.setWidth(NUMBER_RENDER_WIDTH);
 		super.setHeight(NUMBER_RENDER_HEIGHT);
+		
+		//set the start location
+		super.setY(START_Y);
 		
 		//add all number animations
 		for (Key key : Key.values())
@@ -95,38 +102,16 @@ public class Number extends Entity implements Disposable
 	}
 	
 	/**
-	 * Update the number animation
-	 * @param number  The new number
-	 * @throws Exception
-	 */
-	public void setNumber(final int number) throws Exception
-	{
-		//we will re-use the x-coordinate of the first digit as our starting x, also re-use y-coordinate
-		if (numbers != null && !numbers.isEmpty())
-		{
-			setNumber(number, numbers.get(0).x, (int)getY());
-		}
-		else
-		{
-			setNumber(number, 0, (int)getY());
-		}
-		
-	}
-	
-	/**
 	 * Assign the number animation
 	 * @param number The desired number
 	 * @param x The starting x-coordinate
 	 * @param y The y-coordinate
 	 * @throws Exception If one of the characters in the number String are not mapped
 	 */
-	public void setNumber(final int number, int x, final int y) throws Exception
+	public void setNumber(final int number) throws Exception
 	{
 		//assign the value
 		this.number = number;
-		
-    	//assign the y-coordinate
-    	setY(y);
     	
     	//convert number to string
     	String numberDesc = Integer.toString(number);
@@ -139,6 +124,12 @@ public class Number extends Entity implements Disposable
     	
     	//convert string to single characters
     	char[] characters = numberDesc.toCharArray();
+    	
+    	//calculate the starting x-point so the number is always displayed in the middle
+    	setX((GamePanel.WIDTH / 2) - ((NUMBER_RENDER_WIDTH * characters.length) / 2));
+    	
+    	//get the x-coordinate for our starting point
+    	int x = (int)getX();
     	
     	//check each character so we can map the animations
     	for (int i = 0; i < characters.length; i++)
