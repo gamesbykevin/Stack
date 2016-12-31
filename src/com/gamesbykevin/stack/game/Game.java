@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.os.Vibrator;
 import android.view.MotionEvent;
 
+import com.gamesbykevin.stack.board.Block;
+import com.gamesbykevin.stack.board.Board;
 import com.gamesbykevin.stack.board.Piece;
 import com.gamesbykevin.stack.number.Number;
 import com.gamesbykevin.stack.score.Score;
@@ -27,6 +29,9 @@ public final class Game implements IGame
     
     //the duration we want to vibrate the phone for
     private static final long VIBRATION_DURATION = 750L;
+    
+    //the board we are placing pieces on
+    private Board board;
     
     //our current piece
     private Piece piece;
@@ -58,16 +63,58 @@ public final class Game implements IGame
         //create our score card
         this.score = new Score(screen.getPanel().getActivity());
         
+        //create a new board
+        this.board = new Board();
+        
         //create a new piece
-        this.piece = new Piece(10, 10);
-        
-        //set off the screen
-        this.piece.setCol(0);
-        this.piece.setRow(-20);
-        
-        //assign the velocity
-        this.piece.setDX(0);
-        this.piece.setDY(.5);
+        createPiece();
+    }
+    
+    /**
+     * Create a new piece for us to interact with
+     */
+    public final void createPiece()
+    {
+    	if (this.piece == null)
+    	{
+    		this.piece = new Piece();
+    	}
+    	else
+    	{
+    		double x = 0;
+    		double y = 0;
+    		
+    		//calculate the north-west corner coordinates
+    		for (int col = 0; col < getBoard().getTop().getBlocks()[0].length; col++)
+    		{
+    			for (int row = 0; row < getBoard().getTop().getBlocks().length; row++)
+    			{
+    				//if this is not dead we found our north-west location
+    				if (!getBoard().getTop().getBlocks()[row][col].isDead())
+    				{
+    					//set the coordinates for the next piece
+    					x = getBoard().getTop().getBlocks()[row][col].getX();
+    					y = getBoard().getTop().getBlocks()[row][col].getY();
+    					
+    					y = y - (Block.ROW_HEIGHT / 2);
+    					
+    					//assign at end
+    					col = getBoard().getTop().getBlocks()[0].length;
+    					row = getBoard().getTop().getBlocks().length;
+    					
+    					//no need to continue loop
+    					break;
+    				}
+    			}
+    		}
+    		
+    		//create a new piece
+    		this.piece = new Piece(getBoard().getTop());
+    		
+    		//now place the piece over the previous
+    		this.piece.setX(x);
+    		this.piece.setY(y);
+    	}
     }
     
     /**
@@ -97,6 +144,19 @@ public final class Game implements IGame
         return this.screen;
     }
     
+    /**
+     * Get the board
+     * @return The board to which we are placing pieces on
+     */
+    public Board getBoard()
+    {
+    	return this.board;
+    }
+    
+    /**
+     * Get the piece
+     * @return The piece currently in play
+     */
     public Piece getPiece()
     {
     	return this.piece;
@@ -134,6 +194,8 @@ public final class Game implements IGame
     	}
     	else if (action == MotionEvent.ACTION_DOWN)
 		{
+			//flag the piece to stop moving
+			getPiece().stop();
 		}
 		else if (action == MotionEvent.ACTION_MOVE)
     	{

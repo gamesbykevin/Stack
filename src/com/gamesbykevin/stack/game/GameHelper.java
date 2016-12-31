@@ -28,11 +28,6 @@ public final class GameHelper
 	public static boolean GAMEOVER = false;
 	
 	/**
-	 * Do we display the screenshot instructions
-	 */
-	public static boolean IN_GAME_INSTRUCTIONS = false;
-	
-	/**
 	 * Do we go to the exit game screen
 	 */
 	public static boolean EXIT_GAME = false;
@@ -76,10 +71,6 @@ public final class GameHelper
     	}
     	else
     	{
-    		//don't continue if showing in game instructions
-    		if (IN_GAME_INSTRUCTIONS)
-    			return;
-    		
     		//if we want to exit the current game
     		if (EXIT_GAME)
     		{
@@ -94,14 +85,38 @@ public final class GameHelper
     		}
     		else
     		{
-    			game.getPiece().setCol(game.getPiece().getCol() + game.getPiece().getDX());
-    			game.getPiece().setRow(game.getPiece().getRow() + game.getPiece().getDY());
-    			
-    			//make sure we stay in bounds
-    			if (game.getPiece().getCol() < -20 || game.getPiece().getCol() > 20)
-    				game.getPiece().setDX(-game.getPiece().getDX());
-    			if (game.getPiece().getRow() < -20 || game.getPiece().getRow() > 20)
-    				game.getPiece().setDY(-game.getPiece().getDY());
+				//update the game piece location/velocity etc...
+				game.getPiece().update();
+				
+    			//if we stopped the piece
+    			if (game.getPiece().hasStopped())
+    			{
+    				//let's do the comparison if we haven't already
+    				if (!game.getPiece().hasComparison())
+	    				game.getPiece().compare(game.getBoard().getTop());
+    				
+    				//if there are no more blocks to kill
+    				if (game.getPiece().deadCompleted())
+    				{
+    					//if there is at least 1 active block the game will continue
+    					if (game.getPiece().getBlockCount() > 0)
+    					{
+        					//add the current piece to the board
+        					game.getBoard().add(game.getPiece());
+        					
+        					//create a new piece
+        					game.createPiece();
+        					
+        					//add 1 to our total number of attempts
+        					game.getNumber().setNumber(game.getNumber().getNumber() + 1);
+    					}
+    					else
+    					{
+    						//game is over now!!!
+    						GAMEOVER = true;
+    					}
+    				}
+    			}
     		}
     	}
     }
@@ -116,7 +131,7 @@ public final class GameHelper
     {
     	if (!canPlay())
     	{
-			//render loading screen
+			//render splash loading screen
 			canvas.drawBitmap(Images.getImage(Assets.ImageMenuKey.Splash), 0, 0, null);
     	}
     	else
@@ -124,6 +139,9 @@ public final class GameHelper
     		//render our number of successful attempts
     		game.getNumber().render(canvas);
 
+    		//draw all existing pieces on the board
+    		game.getBoard().render(canvas);
+    		
     		//render the current piece
     		game.getPiece().render(canvas, Images.getImage(Assets.ImageGameKey.Block));
     	}
