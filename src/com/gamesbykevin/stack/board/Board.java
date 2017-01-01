@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gamesbykevin.androidframework.resources.Disposable;
-import com.gamesbykevin.androidframework.resources.Images;
-import com.gamesbykevin.stack.assets.Assets;
 import com.gamesbykevin.stack.panel.GamePanel;
 import com.gamesbykevin.stack.piece.Piece;
-import com.gamesbykevin.stack.piece.Side;
-
+import com.gamesbykevin.stack.piece.PieceHelper;
 import android.graphics.Canvas;
 
 /**
@@ -90,7 +87,7 @@ public class Board implements Disposable
 		for (int i = 0; i < this.pieces.size(); i++)
 		{
 			//move the piece down
-			this.pieces.get(i).setY(this.pieces.get(i).getY() + (Side.ROW_HEIGHT / 2));
+			this.pieces.get(i).setY(this.pieces.get(i).getY() + (PieceHelper.ROW_HEIGHT / 2));
 		}
 	}
 	

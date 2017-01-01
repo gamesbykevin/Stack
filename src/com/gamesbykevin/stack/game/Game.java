@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import com.gamesbykevin.stack.board.Board;
 import com.gamesbykevin.stack.number.Number;
 import com.gamesbykevin.stack.piece.Piece;
+import com.gamesbykevin.stack.piece.PieceHelper;
 import com.gamesbykevin.stack.score.Score;
 import com.gamesbykevin.stack.screen.OptionsScreen;
 import com.gamesbykevin.stack.screen.ScreenManager;
@@ -34,6 +35,11 @@ public final class Game implements IGame
     
     //our current piece
     private Piece piece;
+    
+    /**
+     * Can the player interact with the piece?
+     */
+    public static boolean CAN_INTERACT = true;
     
     /**
      * Our value to identify if vibrate is enabled
@@ -80,41 +86,11 @@ public final class Game implements IGame
     	}
     	else
     	{
-    		double x = 0;
-    		double y = 0;
-    		
-    		/*
-    		//calculate the north-west corner coordinates
-    		for (int col = 0; col < getBoard().getTop().getBlocks()[0].length; col++)
-    		{
-    			for (int row = 0; row < getBoard().getTop().getBlocks().length; row++)
-    			{
-    				//if this is not dead we found our north-west location
-    				if (!getBoard().getTop().getBlocks()[row][col].isDead())
-    				{
-    					//set the coordinates for the next piece
-    					x = getBoard().getTop().getBlocks()[row][col].getX();
-    					y = getBoard().getTop().getBlocks()[row][col].getY();
-    					
-    					y = y - (Block.ROW_HEIGHT / 2);
-    					
-    					//assign at end
-    					col = getBoard().getTop().getBlocks()[0].length;
-    					row = getBoard().getTop().getBlocks().length;
-    					
-    					//no need to continue loop
-    					break;
-    				}
-    			}
-    		}
-    		*/
-    		
     		//create a new piece
     		this.piece = new Piece(getBoard().getTop());
     		
-    		//now place the piece over the previous
-    		this.piece.setX(x);
-    		this.piece.setY(y);
+    		//align the piece to be directly on top of the placed piece on the board
+    		PieceHelper.alignPiece(getPiece(), getBoard().getTop());
     	}
     }
     
@@ -192,11 +168,19 @@ public final class Game implements IGame
     	
 		if (action == MotionEvent.ACTION_UP)
     	{
+			//flag that we can interact again
+			CAN_INTERACT = true;
     	}
     	else if (action == MotionEvent.ACTION_DOWN)
 		{
-			//flag the piece to stop moving
-			getPiece().stop();
+    		if (CAN_INTERACT)
+    		{
+				//flag the piece to stop moving
+				getPiece().stop();
+				
+				//flag that we can't interact with the piece
+				CAN_INTERACT = false;
+    		}
 		}
 		else if (action == MotionEvent.ACTION_MOVE)
     	{

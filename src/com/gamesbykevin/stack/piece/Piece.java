@@ -36,7 +36,7 @@ public class Piece extends Entity implements Disposable
 	/**
 	 * The default velocity of a moving piece
 	 */
-	public static final float DEFAULT_VELOCITY = 1.0f; 
+	public static final float DEFAULT_VELOCITY = .5f; 
 	
 	/**
 	 * The velocity of a non moving piece
@@ -58,8 +58,14 @@ public class Piece extends Entity implements Disposable
 	//the total number of columns and rows that make up this piece
 	private final float cols, rows;
 	
+	//once we compare pieces, what is the final size
+	private float colsFinal, rowsFinal;
+	
 	//the sides that make up the piece
 	private List<Side> sides;
+	
+	//when we separate the piece, where is the new x,y coordinates
+	private float cutX, cutY;
 	
 	/**
 	 * Create piece of default size, moving in a random direction
@@ -75,7 +81,7 @@ public class Piece extends Entity implements Disposable
 	 */
 	public Piece(final Piece piece)
 	{
-		this(piece.getCols(), piece.getRows(), !piece.hasVerticalVelocity());
+		this(piece.getColsFinal(), piece.getRowsFinal(), !piece.hasVerticalVelocity());
 	}
 	
 	/**
@@ -123,50 +129,106 @@ public class Piece extends Entity implements Disposable
 		this.sides = new ArrayList<Side>();
 		
 		//create the sides
-		createSides(0, getCols(), 0, getRows(), false);
+		PieceHelper.createSides(this, 0, getCols(), 0, getRows(), false, false);
 	}
 	
 	/**
-	 * Create the sides with the specified boundary
-	 * @param colW West most column
-	 * @param colE East most column
-	 * @param rowN North most column
-	 * @param rowS South most column
-	 * @param dead Are these sides dead?
+	 * 
+	 * @return
 	 */
-	private void createSides(final float colW, final float colE, final float rowN, final float rowS, final boolean dead)
+	protected List<Side> getSides()
 	{
-		Side top = new Side(Type.Top);
-		Side east = new Side(Type.East);
-		Side south = new Side(Type.South);
-		
-		//set the boundaries of the current side
-		top.setBoundary(colW, colE, rowN, rowS);
-		east.setBoundary(colW, colE, rowN, rowS);
-		south.setBoundary(colW, colE, rowN, rowS);
-		
-		//if dead, flag it
-		if (dead)
-		{
-			top.flagDead();
-			east.flagDead();
-			south.flagDead();
-		}
-		
-		//add the sides to our list
-		this.sides.add(top);
-		this.sides.add(east);
-		this.sides.add(south);
+		return this.sides;
 	}
 	
+	/**
+	 * Get the total starting columns
+	 * @return The starting total number of columns that makes up the piece
+	 */
 	public float getCols()
 	{
 		return this.cols;
 	}
 	
+	/**
+	 * Get the total starting rows
+	 * @return The starting total number of rows that makes up the piece
+	 */
 	public float getRows()
 	{
 		return this.rows;
+	}
+	
+	/**
+	 * 
+	 * @param cutX
+	 */
+	public void setCutX(final float cutX)
+	{
+		this.cutX = cutX;
+	}
+	
+	/**
+	 * 
+	 * @param cutY
+	 */
+	public void setCutY(final float cutY)
+	{
+		this.cutY = cutY;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public float getCutX()
+	{
+		return this.cutX;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public float getCutY()
+	{
+		return this.cutY;
+	}
+	
+	/**
+	 * 
+	 * @param colsFinal
+	 */
+	public void setColsFinal(final float colsFinal)
+	{
+		this.colsFinal = colsFinal;
+	}
+	
+	/**
+	 * 
+	 * @param rowsFinal
+	 */
+	public void setRowsFinal(final float rowsFinal)
+	{
+		this.rowsFinal = rowsFinal;
+	}
+	
+	/**
+	 * Get the final column count
+	 * @return The final number of columns after comparing this piece to another
+	 */
+	public float getColsFinal()
+	{
+		return this.colsFinal;
+	}
+	
+	/**
+	 * Get the final row count
+	 * @return The final number of rows after comparing this piece to another
+	 */
+	public float getRowsFinal()
+	{
+		return this.rowsFinal;
 	}
 	
 	@Override
@@ -232,102 +294,6 @@ public class Piece extends Entity implements Disposable
 	}
 	
 	/**
-	 * Compare the current piece with the piece specified<br>
-	 * The reason is to identify how to cut the current piece
-	 * @param piece The piece previously placed on the board
-	 */
-	public void compare(final Piece piece)
-	{
-		
-		//if the piece is not directly on top of the other piece we need to separate
-		if (piece.getCol() != getCol() || piece.getRow() != getRow())
-		{
-			float difference = 0;
-			float surviveColW = 0;
-			float surviveColE = 0;
-			float surviveRowN = 0;
-			float surviveRowS = 0;
-			float deadColW = 0;
-			float deadColE = 0;
-			float deadRowN = 0;
-			float deadRowS = 0;
-			
-			//moving north and south
-			if (hasVerticalVelocity())
-			{
-				if (piece.getRow() > getRow())
-				{
-					//calculate the difference
-					difference = (float) (piece.getRow() - getRow());
-					surviveColW = 0;
-					surviveColE = getCols();
-					surviveRowN = (float)piece.getRow();
-					surviveRowS = getRows() - difference;
-					deadColW = 0;
-					deadColE = getCols();
-					deadRowN = 0;
-					deadRowS = (float)piece.getRow();
-				}
-				else
-				{
-					//calculate the difference
-					difference = (float) (getRow() - piece.getRow());
-					surviveColW = 0;
-					surviveColE = getCols();
-					surviveRowN = 0;
-					surviveRowS = piece.getRows();
-					deadColW = 0;
-					deadColE = getCols();
-					deadRowN = piece.getRows();
-					deadRowS = getRows();
-				}
-			}
-			else
-			{
-				if (piece.getCol() > getCol())
-				{
-					//calculate the difference
-					difference = (float) (piece.getCol() - getCol());
-					surviveColW = getCols() - difference;
-					surviveColE = getCols();
-					surviveRowN = 0;
-					surviveRowS = getRows();
-					deadColW = 0;
-					deadColE = getCols() - difference;
-					deadRowN = 0;
-					deadRowS = getRows();
-				}
-				else
-				{
-					//calculate the difference
-					difference = (float) (getCol() - piece.getCol());
-					surviveColW = difference;
-					surviveColE = piece.getCols();
-					surviveRowN = 0;
-					surviveRowS = getRows();
-					deadColW = piece.getCols();
-					deadColE = getCols();
-					deadRowN = 0;
-					deadRowS = getRows();
-				}
-			}
-			
-			//update the boundary for the existing surviving side
-			for (int i = 0; i < this.sides.size(); i++)
-			{
-				//update the boundary
-				this.sides.get(i).setBoundary(surviveColW, surviveColE, surviveRowN, surviveRowS);
-			}
-			
-			//create the sides that are dead
-			createSides(deadColW, deadColE, deadRowN, deadRowS, true);
-		}
-		
-		//flag that we have done the comparison
-		this.compare = true;
-	}
-	
-	/**
 	 * Update the piece.<br>
 	 * Here we update the location and adjust velocity if needed etc...
 	 * @param piece The piece on the board we want to place on top of
@@ -352,14 +318,28 @@ public class Piece extends Entity implements Disposable
 			if (!hasComparison())
 			{
 				//compare the pieces if we have not done the comparison
-				compare(piece);
+				//do the comparison
+				PieceHelper.compare(this, piece);
+				
+				//flag that we have done the comparison
+				this.compare = true;
 			}
 			else
 			{
 				//if we have stopped and have made a comparison, lets update the piece visibility
-				for (int i = 0; i < this.sides.size(); i++)
+				for (int i = 0; i < getSides().size(); i++)
 				{
-					this.sides.get(i).update();
+					//update any necessary etc...
+					getSides().get(i).update();
+					
+					if (getSides().get(i).hasDeadCompleted())
+					{
+						//remove the object
+						getSides().remove(i);
+						
+						//move the index back
+						i--;
+					}
 				}
 			}
 		}

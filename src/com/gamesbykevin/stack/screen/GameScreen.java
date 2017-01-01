@@ -46,7 +46,7 @@ public class GameScreen implements Screen, Disposable
         GameHelper.RESET = true;
         
         //flag game over true
-        GameHelper.GAMEOVER = true;
+        GameHelper.GAMEOVER = false;
     }
     
     /**

@@ -2,6 +2,7 @@ package com.gamesbykevin.stack.game;
 
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.stack.assets.Assets;
+import com.gamesbykevin.stack.piece.PieceHelper;
 import com.gamesbykevin.stack.screen.ScreenManager;
 
 import android.graphics.Canvas;
@@ -94,10 +95,20 @@ public final class GameHelper
     			//if we stopped the piece
     			if (game.getPiece().hasStop())
     			{
-    				/*
-    				//if there are no more blocks to kill
-    				if (game.getPiece().deadCompleted())
+    				
+    				//if there are no more blocks to destroy and the game is not over
+    				if (PieceHelper.hasDeadCompleted(game.getPiece()) && !GAMEOVER)
     				{
+    					//add the current piece to the board
+    					game.getBoard().add(game.getPiece());
+    					
+    					//create a new piece
+    					game.createPiece();
+    					
+    					//add 1 to our total number of attempts
+    					game.getNumber().setNumber(game.getNumber().getNumber() + 1);
+    					
+    					/*
     					//if there is at least 1 active block the game will continue
     					if (game.getPiece().getBlockCount() > 0)
     					{
@@ -115,8 +126,8 @@ public final class GameHelper
     						//game is over now!!!
     						GAMEOVER = true;
     					}
+    					*/
     				}
-    				*/
     			}
     		}
     	}
@@ -141,7 +152,7 @@ public final class GameHelper
     		game.getNumber().render(canvas);
 
     		//draw all existing pieces on the board
-    		//game.getBoard().render(canvas);
+    		game.getBoard().render(canvas);
     		
     		//render the current piece
     		game.getPiece().render(canvas);

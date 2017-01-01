@@ -4,7 +4,6 @@ import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.stack.thread.MainThread;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
@@ -15,16 +14,6 @@ import android.graphics.Path;
  */
 public class Side extends Path implements Disposable
 {
-	/**
-	 * The pixel dimension of a single block that makes up this piece
-	 */
-	public static final int COLUMN_WIDTH = 30;
-
-	/**
-	 * The dimensions of a single block that makes up this piece
-	 */
-	public static final int ROW_HEIGHT = COLUMN_WIDTH;
-	
 	/**
 	 * The different types of sides
 	 * @author GOD
@@ -48,7 +37,7 @@ public class Side extends Path implements Disposable
 	/**
 	 * How many frames is this side allowed to be dead (visible)
 	 */
-	private static final float FRAMES_LIMIT = MainThread.FPS;
+	private static final float FRAMES_LIMIT = (MainThread.FPS / 4);
 	
 	/**
 	 * 100% visible
@@ -131,7 +120,7 @@ public class Side extends Path implements Disposable
 	 * Get the type of side
 	 * @return The type of side this is
 	 */
-	private Type getType()
+	protected Type getType()
 	{
 		return this.type;
 	}
@@ -161,8 +150,8 @@ public class Side extends Path implements Disposable
 			case East:
 				super.moveTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece));
 				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece));
-				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece) + (ROW_HEIGHT / 2));
-				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + (ROW_HEIGHT / 2));
+				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece) + (PieceHelper.ROW_HEIGHT / 2));
+				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + (PieceHelper.ROW_HEIGHT / 2));
 				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece));
 				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece));
 				break;
@@ -171,8 +160,8 @@ public class Side extends Path implements Disposable
 				super.moveTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece));
 				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece));
 				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece));
-				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + (ROW_HEIGHT / 2));
-				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece) + (ROW_HEIGHT / 2));
+				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + (PieceHelper.ROW_HEIGHT / 2));
+				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece) + (PieceHelper.ROW_HEIGHT / 2));
 				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece));
 				break;
 				
@@ -182,42 +171,42 @@ public class Side extends Path implements Disposable
 	}
 	
 	/**
+	 * Get the x-coordinate location
+	 * @param col
+	 * @param row
+	 * @param piece
+	 * @return the x-coordinate
+	 */
+	protected static float getLocationX(final double col, final double row, final Piece piece)
+	{
+		final float adjustCol = (float) (col + piece.getCol());
+		final float adjustRow = (float) (row + piece.getRow());
+		
+		return (float) (((adjustCol - adjustRow) * (PieceHelper.COLUMN_WIDTH / 2)) + piece.getX());
+	}
+	
+	/**
+	 * Get the y-coordinate location
+	 * @param col
+	 * @param row
+	 * @param piece
+	 * @return the y-coordinate
+	 */
+	protected static float getLocationY(final double col, final double row, final Piece piece)
+	{
+		final float adjustCol = (float) (col + piece.getCol());
+		final float adjustRow = (float) (row + piece.getRow());
+		
+		return (float) (((adjustCol + adjustRow) * (PieceHelper.ROW_HEIGHT / 4)) + piece.getY());
+	}	
+	
+	/**
 	 * Update the frame progression, if dead
 	 */
 	public void update()
 	{
 		if (isDead() && this.frames < FRAMES_LIMIT)
 			this.frames++;
-	}
-	
-	/**
-	 * 
-	 * @param col
-	 * @param row
-	 * @param piece
-	 * @return
-	 */
-	private float getLocationX(final double col, final double row, final Piece piece)
-	{
-		final float adjustCol = (float) (col + piece.getCol());
-		final float adjustRow = (float) (row + piece.getRow());
-		
-		return (float) (((adjustCol - adjustRow) * (COLUMN_WIDTH / 2)) + piece.getX());
-	}
-	
-	/**
-	 * 
-	 * @param col
-	 * @param row
-	 * @param piece
-	 * @return
-	 */
-	private float getLocationY(final double col, final double row, final Piece piece)
-	{
-		final float adjustCol = (float) (col + piece.getCol());
-		final float adjustRow = (float) (row + piece.getRow());
-		
-		return (float) (((adjustCol + adjustRow) * (ROW_HEIGHT / 4)) + piece.getY());
 	}
 	
 	/**
@@ -241,32 +230,34 @@ public class Side extends Path implements Disposable
 		if (hasDeadCompleted())
 			return;
 		
-		//set transparency accordingly
+		//if there are no dimensions we won't render
+		if (this.colW - this.colE == 0 || this.rowN - this.rowS == 0)
+			return;
+		
+		//calculate the coordinates for rendering if we are still moving
+		if (!isComplete())
+			calculate(piece);
+		
+		//the alpha transparency
+		int alpha = OPAQUE;
+		
+		//calculate transparency accordingly
 		if (isDead())
 		{
 			//calculate our progress
 			final float progress = (1.0f - (frames / FRAMES_LIMIT));
 			
 			//set the transparency accordingly
-			paint.setAlpha((int) (progress * OPAQUE));
+			alpha = (int)(progress * OPAQUE);
 		}
-		else
-		{
-			//set the transparency accordingly
-			paint.setAlpha(OPAQUE);
-		}
-
-		//calculate the coordinates for rendering if we are still moving
-		if (!isComplete())
-			calculate(piece);
 		
 		//render the shape
-		paint.setColor(Color.GREEN);
+		paint.setARGB(alpha, 0, 255, 0);
 		paint.setStyle(Style.FILL);
 		canvas.drawPath(this, paint);
 		
 		//render the outline of the shape
-		paint.setColor(Color.BLACK);
+		paint.setARGB(alpha, 0, 0, 0);
 		paint.setStyle(Style.STROKE);
 		canvas.drawPath(this, paint);
 	}
