@@ -5,6 +5,9 @@ import com.gamesbykevin.stack.assets.Assets;
 import com.gamesbykevin.stack.screen.ScreenManager;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 
 /**
  * Game helper methods
@@ -86,15 +89,12 @@ public final class GameHelper
     		else
     		{
 				//update the game piece location/velocity etc...
-				game.getPiece().update();
+				game.getPiece().update(game.getBoard().getTop());
 				
     			//if we stopped the piece
-    			if (game.getPiece().hasStopped())
+    			if (game.getPiece().hasStop())
     			{
-    				//let's do the comparison if we haven't already
-    				if (!game.getPiece().hasComparison())
-	    				game.getPiece().compare(game.getBoard().getTop());
-    				
+    				/*
     				//if there are no more blocks to kill
     				if (game.getPiece().deadCompleted())
     				{
@@ -116,6 +116,7 @@ public final class GameHelper
     						GAMEOVER = true;
     					}
     				}
+    				*/
     			}
     		}
     	}
@@ -140,10 +141,10 @@ public final class GameHelper
     		game.getNumber().render(canvas);
 
     		//draw all existing pieces on the board
-    		game.getBoard().render(canvas);
+    		//game.getBoard().render(canvas);
     		
     		//render the current piece
-    		game.getPiece().render(canvas, Images.getImage(Assets.ImageGameKey.Block));
+    		game.getPiece().render(canvas);
     	}
     }
     

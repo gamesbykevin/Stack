@@ -7,10 +7,9 @@ import android.graphics.Paint;
 import android.os.Vibrator;
 import android.view.MotionEvent;
 
-import com.gamesbykevin.stack.board.Block;
 import com.gamesbykevin.stack.board.Board;
-import com.gamesbykevin.stack.board.Piece;
 import com.gamesbykevin.stack.number.Number;
+import com.gamesbykevin.stack.piece.Piece;
 import com.gamesbykevin.stack.score.Score;
 import com.gamesbykevin.stack.screen.OptionsScreen;
 import com.gamesbykevin.stack.screen.ScreenManager;
@@ -84,6 +83,7 @@ public final class Game implements IGame
     		double x = 0;
     		double y = 0;
     		
+    		/*
     		//calculate the north-west corner coordinates
     		for (int col = 0; col < getBoard().getTop().getBlocks()[0].length; col++)
     		{
@@ -107,6 +107,7 @@ public final class Game implements IGame
     				}
     			}
     		}
+    		*/
     		
     		//create a new piece
     		this.piece = new Piece(getBoard().getTop());
@@ -263,6 +264,18 @@ public final class Game implements IGame
     	{
     		this.score.dispose();
     		this.score = null;
+    	}
+    	
+    	if (this.board != null)
+    	{
+    		this.board.dispose();
+    		this.board = null;
+    	}
+    	
+    	if (this.piece != null)
+    	{
+    		this.piece.dispose();
+    		this.piece = null;
     	}
     }
 }

@@ -90,7 +90,6 @@ public class Assets
      */
     public enum ImageGameKey
     {
-    	Block,
     	HomeNavigation,
     	Numbers
     }

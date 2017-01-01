@@ -7,6 +7,8 @@ import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.stack.assets.Assets;
 import com.gamesbykevin.stack.panel.GamePanel;
+import com.gamesbykevin.stack.piece.Piece;
+import com.gamesbykevin.stack.piece.Side;
 
 import android.graphics.Canvas;
 
@@ -40,9 +42,6 @@ public class Board implements Disposable
 		piece.setCol(0);
 		piece.setRow(0);
 		piece.setY(Board.START_Y);
-		
-		//make sure we calculate where the coordinates are
-		piece.calculate();
 		
 		//add default footer piece
 		this.add(piece);
@@ -91,10 +90,7 @@ public class Board implements Disposable
 		for (int i = 0; i < this.pieces.size(); i++)
 		{
 			//move the piece down
-			this.pieces.get(i).setY(this.pieces.get(i).getY() + (Block.ROW_HEIGHT / 2));
-			
-			//recalculate the block coordinates
-			this.pieces.get(i).calculate();
+			this.pieces.get(i).setY(this.pieces.get(i).getY() + (Side.ROW_HEIGHT / 2));
 		}
 	}
 	
@@ -109,7 +105,7 @@ public class Board implements Disposable
 		for (int i = 0; i < pieces.size(); i++)
 		{
 			//render the current piece
-			this.pieces.get(i).render(canvas, Images.getImage(Assets.ImageGameKey.Block));
+			this.pieces.get(i).render(canvas);
 		}
 	}
 }
