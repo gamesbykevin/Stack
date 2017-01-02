@@ -7,15 +7,11 @@ import com.gamesbykevin.androidframework.base.Entity;
 import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.stack.board.Board;
 import com.gamesbykevin.stack.panel.GamePanel;
-import com.gamesbykevin.stack.piece.Side.Type;
 import com.gamesbykevin.stack.thread.MainThread;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Style;
-import android.graphics.Path;
 
 /**
  * A single piece that we want to place on the board
@@ -31,12 +27,12 @@ public class Piece extends Entity implements Disposable
 	/**
 	 * Which column or row should we start at?
 	 */
-	public static final int DEFAULT_START_POSITION = -(DEFAULT_SIZE * 2);
+	public static final int DEFAULT_START_POSITION = (int) -(DEFAULT_SIZE * 1.25);
 	
 	/**
 	 * The default velocity of a moving piece
 	 */
-	public static final float DEFAULT_VELOCITY = .5f; 
+	public static final float DEFAULT_VELOCITY = 1.0f; 
 	
 	/**
 	 * The velocity of a non moving piece
@@ -65,7 +61,10 @@ public class Piece extends Entity implements Disposable
 	private List<Side> sides;
 	
 	//when we separate the piece, where is the new x,y coordinates
-	private float cutX, cutY;
+	private float spawnX, spawnY;
+	
+	//the render color of this piece
+	private int color = Color.GREEN;
 	
 	/**
 	 * Create piece of default size, moving in a random direction
@@ -110,6 +109,14 @@ public class Piece extends Entity implements Disposable
 		super.setX(Board.START_X);
 		super.setY(Board.START_Y);
 		
+		//assign default value for now
+		this.setColsFinal(cols);
+		this.setRowsFinal(rows);
+
+		//assign default spawn location
+		this.setSpawnX(Side.getLocationX(0, 0, this));
+		this.setSpawnY(Side.getLocationY(0, 0, this));
+		
 		//determine if the piece
 		this.vertical = vertical;
 		
@@ -133,8 +140,26 @@ public class Piece extends Entity implements Disposable
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Assign the color
+	 * @param color The desired rendering color for this piece
+	 */
+	public void setColor(final int color)
+	{
+		this.color = color;
+	}
+	
+	/**
+	 * Get the color
+	 * @return The render color for this piece
+	 */
+	public int getColor()
+	{
+		return this.color;
+	}
+	
+	/**
+	 * Get the sides
+	 * @return The list of sides that make up this piece
 	 */
 	protected List<Side> getSides()
 	{
@@ -160,44 +185,44 @@ public class Piece extends Entity implements Disposable
 	}
 	
 	/**
-	 * 
-	 * @param cutX
+	 * Assign the spawn x-coordinate
+	 * @param spawnX The desired y-coordinate where we want to spawn our next piece
 	 */
-	public void setCutX(final float cutX)
+	public void setSpawnX(final float spawnX)
 	{
-		this.cutX = cutX;
+		this.spawnX = spawnX;
 	}
 	
 	/**
-	 * 
-	 * @param cutY
+	 * Assign the spawn y-coordinate
+	 * @param spawnY The desired y-coordinate where we want to spawn our next piece
 	 */
-	public void setCutY(final float cutY)
+	public void setSpawnY(final float spawnY)
 	{
-		this.cutY = cutY;
+		this.spawnY = spawnY;
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Get the spawn x-coordinate
+	 * @return The x-coordinate where we want to spawn our next piece
 	 */
-	public float getCutX()
+	public float getSpawnX()
 	{
-		return this.cutX;
+		return this.spawnX;
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Get the spawn y-coordinate
+	 * @return The y-coordinate where we want to spawn our next piece
 	 */
-	public float getCutY()
+	public float getSpawnY()
 	{
-		return this.cutY;
+		return this.spawnY;
 	}
 	
 	/**
-	 * 
-	 * @param colsFinal
+	 * Assign the final columns
+	 * @param colsFinal The total number of surviving columns
 	 */
 	public void setColsFinal(final float colsFinal)
 	{
@@ -205,8 +230,8 @@ public class Piece extends Entity implements Disposable
 	}
 	
 	/**
-	 * 
-	 * @param rowsFinal
+	 * Assign the final rows
+	 * @param rowsFinal The total number of surviving rows
 	 */
 	public void setRowsFinal(final float rowsFinal)
 	{
@@ -296,9 +321,9 @@ public class Piece extends Entity implements Disposable
 	/**
 	 * Update the piece.<br>
 	 * Here we update the location and adjust velocity if needed etc...
-	 * @param piece The piece on the board we want to place on top of
+	 * @param board The board to which we want to place a piece on top of
 	 */
-	public void update(final Piece piece)
+	public void update(final Board board)
 	{
 		//if the piece has not stopped update the location
 		if (!hasStop())
@@ -319,27 +344,36 @@ public class Piece extends Entity implements Disposable
 			{
 				//compare the pieces if we have not done the comparison
 				//do the comparison
-				PieceHelper.compare(this, piece);
+				PieceHelper.compare(this, board.getTop());
 				
 				//flag that we have done the comparison
 				this.compare = true;
 			}
 			else
 			{
-				//if we have stopped and have made a comparison, lets update the piece visibility
-				for (int i = 0; i < getSides().size(); i++)
+				//if all dead animations aren't finished
+				if (!PieceHelper.hasDeadCompleted(this))
 				{
-					//update any necessary etc...
-					getSides().get(i).update();
-					
-					if (getSides().get(i).hasDeadCompleted())
+					//if we have stopped and have made a comparison, lets update the piece visibility
+					for (int i = 0; i < getSides().size(); i++)
 					{
-						//remove the object
-						getSides().remove(i);
+						//update any necessary etc...
+						getSides().get(i).update();
 						
-						//move the index back
-						i--;
+						if (getSides().get(i).hasDeadCompleted())
+						{
+							//remove the object
+							getSides().remove(i);
+							
+							//move the index back
+							i--;
+						}
 					}
+				}
+				else
+				{
+					//now dead animations are complete, we can add this piece to the board
+					board.add(this);
 				}
 			}
 		}
@@ -355,7 +389,7 @@ public class Piece extends Entity implements Disposable
 		//render all sides of the piece
 		for (int i = 0; i < this.sides.size(); i++)
 		{
-			this.sides.get(i).render(canvas, paint, this);
+			this.sides.get(i).render(canvas, paint, this, getColor());
 		}
 	}
 }

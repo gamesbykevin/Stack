@@ -344,8 +344,8 @@ public class OptionsScreen implements Screen, Disposable
 	                //flip setting
 	                Audio.setAudioEnabled(!Audio.isAudioEnabled());
 	                
-	                //play sound effect
-	                Assets.playMenuSelection();
+	                //play the main theme as well
+	                Assets.playTheme();
 	                
 	                //end of case
 	                break;

@@ -14,16 +14,28 @@ import android.graphics.Canvas;
 public class Number extends Entity implements Disposable
 {
 	//the dimensions of each number animation
-	private static final int NUMBER_ANIMATION_WIDTH = 128;
-	private static final int NUMBER_ANIMATION_HEIGHT = 152;
+	private static final int NUMBER_ANIMATION_WIDTH = 200;
+	private static final int NUMBER_ANIMATION_HEIGHT = 144;
 	
-	//the dimensions of each number render
-	public static final int NUMBER_RENDER_WIDTH = NUMBER_ANIMATION_WIDTH;
-	public static final int NUMBER_RENDER_HEIGHT = NUMBER_ANIMATION_HEIGHT;
+	//the dimensions of each large number render
+	public static final int NUMBER_RENDER_WIDTH = (int) (NUMBER_ANIMATION_WIDTH * .75);
+	public static final int NUMBER_RENDER_HEIGHT = (int) (NUMBER_ANIMATION_HEIGHT * .75);
+	
+	//the dimensions of each small number render
+	public static final int NUMBER_RENDER_WIDTH_SMALL = 72;
+	public static final int NUMBER_RENDER_HEIGHT_SMALL = 52;
 	
 	//the starting y-coordinate where we want to render the number
-	private static final int START_Y = 10;
+	public static final int CURRENT_START_Y = 15;
 	
+	//the starting y-coordinate where we want to render the smaller number
+	public static final int BEST_RECORD_Y = GamePanel.HEIGHT - 60;
+	
+	//the starting x-coordinate where we want to render the smaller number
+	public static final int BEST_RECORD_X = 110;
+	
+	//where to render the text
+	public static final int BEST_RECORD_X_TEXT = 5;
 	/**
 	 * The key for each number animation
 	 */
@@ -46,11 +58,16 @@ public class Number extends Entity implements Disposable
 	//the number
 	private int number = 0;
 	
+	private boolean autoCenter = false;
+	
 	/**
 	 * Default constructor
 	 */
-	public Number()
+	public Number(final boolean autoCenter)
 	{
+		//do we auto center number compared to screen size
+		this.autoCenter = autoCenter;
+		
 		//create a new numbers list
 		this.numbers = new ArrayList<Digit>();
 		
@@ -59,7 +76,7 @@ public class Number extends Entity implements Disposable
 		super.setHeight(NUMBER_RENDER_HEIGHT);
 		
 		//set the start location
-		super.setY(START_Y);
+		super.setY(CURRENT_START_Y);
 		
 		//add all number animations
 		for (Key key : Key.values())
@@ -126,7 +143,8 @@ public class Number extends Entity implements Disposable
     	char[] characters = numberDesc.toCharArray();
     	
     	//calculate the starting x-point so the number is always displayed in the middle
-    	setX((GamePanel.WIDTH / 2) - ((NUMBER_RENDER_WIDTH * characters.length) / 2));
+    	if (this.autoCenter)
+    		setX((GamePanel.WIDTH / 2) - ((NUMBER_RENDER_WIDTH * characters.length) / 2));
     	
     	//get the x-coordinate for our starting point
     	int x = (int)getX();
@@ -206,6 +224,7 @@ public class Number extends Entity implements Disposable
      * Render the assigned number
      * @param canvas
      */
+	@Override
     public void render(final Canvas canvas) throws Exception
     {
     	//check every digit in the list

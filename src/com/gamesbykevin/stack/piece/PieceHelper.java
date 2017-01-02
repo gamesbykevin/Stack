@@ -1,5 +1,7 @@
 package com.gamesbykevin.stack.piece;
 
+import com.gamesbykevin.androidframework.resources.Audio;
+import com.gamesbykevin.stack.assets.Assets;
 import com.gamesbykevin.stack.game.GameHelper;
 import com.gamesbykevin.stack.piece.Side.Type;
 
@@ -12,12 +14,17 @@ public class PieceHelper
 	/**
 	 * The pixel dimension of a single block that makes up this piece
 	 */
-	public static final int COLUMN_WIDTH = 40;
+	public static final int COLUMN_WIDTH = 20;
 
 	/**
 	 * The dimensions of a single block that makes up this piece
 	 */
-	public static final int ROW_HEIGHT = COLUMN_WIDTH;
+	public static final int ROW_HEIGHT = (int) (COLUMN_WIDTH * 1.0);
+	
+	/**
+	 * The pixel height we want to render on screen
+	 */
+	public static final int ROW_HEIGHT_RENDER = (int) (ROW_HEIGHT * 2.0);
 	
 	/**
 	 * Compare the two pieces to determine how we are to separate
@@ -26,20 +33,23 @@ public class PieceHelper
 	 */
 	protected static void compare(final Piece piece1, final Piece piece2)
 	{
+		//calculations to assign with comparing the piece
+		float rowsFinal;
+		float colsFinal;
+		float difference = 0;
+		float surviveColW = 0;
+		float surviveColE = 0;
+		float surviveRowN = 0;
+		float surviveRowS = 0;
+		float deadColW = 0;
+		float deadColE = 0;
+		float deadRowN = 0;
+		float deadRowS = 0;
+		boolean first = false;
+		
 		//if the piece is not directly on top of the other piece we need to separate
 		if (piece2.getCol() != piece1.getCol() || piece2.getRow() != piece1.getRow())
 		{
-			float difference = 0;
-			float surviveColW = 0;
-			float surviveColE = 0;
-			float surviveRowN = 0;
-			float surviveRowS = 0;
-			float deadColW = 0;
-			float deadColE = 0;
-			float deadRowN = 0;
-			float deadRowS = 0;
-			boolean first = false;
-			
 			//moving north and south
 			if (piece1.hasVerticalVelocity())
 			{
@@ -73,9 +83,10 @@ public class PieceHelper
 				}
 				
 				//store the final piece size after comparison
-				piece1.setColsFinal(piece1.getCols());
-				piece1.setRowsFinal(piece1.getRows() - difference);
+				colsFinal = piece1.getCols();
+				rowsFinal = piece1.getRows() - difference;
 				
+				//if the difference is greater or equal to the number of rows, we lost
 				if (difference >= piece1.getRows())
 					GameHelper.GAMEOVER = true;
 			}
@@ -110,9 +121,10 @@ public class PieceHelper
 				}
 				
 				//store the final piece size after comparison
-				piece1.setColsFinal(piece1.getCols() - difference);
-				piece1.setRowsFinal(piece1.getRows());
+				colsFinal = piece1.getCols() - difference;
+				rowsFinal = piece1.getRows();
 				
+				//if the difference is greater or equal to the number of rows, we lost
 				if (difference >= piece1.getCols())
 					GameHelper.GAMEOVER = true;
 			}
@@ -130,8 +142,6 @@ public class PieceHelper
 				createSides(piece1, deadColW, deadColE, deadRowN, deadRowS, true, first);
 				
 				//set the cut location so we know where to spawn the next piece
-				piece1.setCutX(Side.getLocationX(surviveColW, surviveRowN, piece1));
-				piece1.setCutY(Side.getLocationY(surviveColW, surviveRowN, piece1));
 			}
 			else
 			{
@@ -144,7 +154,31 @@ public class PieceHelper
 				//mark the whole piece as dead
 				createSides(piece1, 0, piece1.getCols(), 0, piece1.getRows(), true, first);
 			}
+			
+			//play appropriate sound effect
+			Audio.play((int)difference != 0 ? Assets.AudioGameKey.PlaceWrong : Assets.AudioGameKey.PlaceCorrect);
 		}
+		else
+		{
+			//play sound effect that we got it correct
+			Audio.play(Assets.AudioGameKey.PlaceCorrect);
+			
+			//rows and columns will stay the same
+			colsFinal = piece1.getCols();
+			rowsFinal = piece1.getRows();
+			
+			//we will also not need to cut the piece
+			surviveColW = 0;
+			surviveRowN = 0;
+		}
+		
+		//assign the total surviving rows/columns
+		piece1.setColsFinal(colsFinal);
+		piece1.setRowsFinal(rowsFinal);
+		
+		//set the spawn location of the piece, so we know where to spawn the next piece
+		piece1.setSpawnX(Side.getLocationX(surviveColW, surviveRowN, piece1));
+		piece1.setSpawnY(Side.getLocationY(surviveColW, surviveRowN, piece1));
 	}
 	
 	/**
@@ -216,7 +250,7 @@ public class PieceHelper
 	 */
 	public static void alignPiece(final Piece piece1, final Piece piece2)
 	{
-		piece1.setX(piece2.getCutX());
-		piece1.setY(piece2.getCutY());
+		piece1.setX(piece2.getSpawnX());
+		piece1.setY(piece2.getSpawnY());
 	}
 }

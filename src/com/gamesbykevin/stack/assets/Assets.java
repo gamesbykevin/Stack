@@ -75,10 +75,11 @@ public class Assets
     	Button, 
     	Cancel, 
     	Confirm, 
-    	ExitText,
     	Facebook, 
+    	Gameover, 
     	Instructions,
     	Logo, 
+    	NewRecord,
     	Splash, 
     	Twitter, 
     	Youtube
@@ -90,7 +91,7 @@ public class Assets
      */
     public enum ImageGameKey
     {
-    	HomeNavigation,
+    	BestText, 
     	Numbers
     }
     
@@ -109,6 +110,7 @@ public class Assets
      */
     public enum AudioMenuKey
     {
+    	Selection
     }
     
     /**
@@ -117,6 +119,9 @@ public class Assets
      */
     public enum AudioGameKey
     {
+    	PlaceCorrect,
+    	PlaceWrong,
+    	Theme
     }
     
     /**
@@ -124,31 +129,15 @@ public class Assets
      */
     public static final void playMenuSelection()
     {
-    	//Audio.play(AudioMenuKey.Selection);
+    	Audio.play(AudioMenuKey.Selection);
     }
     
     /**
-     * Play the sound effect for an invalid selection
+     * Play the main theme
      */
-    public static final void playInvalidSelection()
+    public static final void playTheme()
     {
-    	//Audio.play(AudioGameKey.Invalid);
-    }
-    
-    /**
-     * Play the menu theme
-     */
-    public static final void playMenuTheme()
-    {
-    	//Audio.play(Assets.AudioMenuKey.MenuTheme, true);
-    }
-    
-    /**
-     * Play the main game theme
-     */
-    public static final void playMainTheme()
-    {
-    	//Audio.play(Assets.AudioGameKey.MainTheme, true);
+    	Audio.play(Assets.AudioGameKey.Theme, true);
     }
     
     /**

@@ -1,7 +1,5 @@
 package com.gamesbykevin.stack.score;
 
-import java.util.ArrayList;
-
 import com.gamesbykevin.androidframework.io.storage.Internal;
 import com.gamesbykevin.stack.thread.MainThread;
 
@@ -14,114 +12,65 @@ public class Score extends Internal
 	 */
 	public static final String FILE_NAME = "scorecard";
 
-    /**
-     * New score separator string
-     */
-    private static final String NEW_SCORE = ";";
-	
-    /**
-     * Split the number of colors and the level number
-     */
-    private static final String SCORE_DATA = "-";
+    //the best score result
+    private int scoreResult;
     
-    /**
-     * The location for the difficulty
-     */
-    private static final int NUMBER_OF_COLORS_INDEX = 0;
-    
-    /**
-     * The location for the level number
-     */
-    private static final int LEVEL_NUMBER_INDEX = 1;
-    
-	//list of all levels completed
-	private ArrayList<LevelData> levels;
-	
 	/**
 	 * Default Constructor
 	 */
 	public Score(final Activity activity) 
 	{
+		//call parent constructor
 		super(FILE_NAME, activity, MainThread.DEBUG);
 		
-		//create new list of levels
-		this.levels = new ArrayList<LevelData>();
-		
-        //if content exists we will load it
-        if (super.getContent().toString().trim().length() > 0)
-        {
-            //each index indicates a level completed
-            final String[] scores = super.getContent().toString().split(NEW_SCORE);
-            
-            for (String score : scores)
-            {
-            	//split the score up
-            	final String[] data = score.split(SCORE_DATA);
-            	
-            	//add this to our list of levels
-            	this.levels.add(
-            		new LevelData(
-            			Integer.parseInt(data[NUMBER_OF_COLORS_INDEX]), 
-            			Integer.parseInt(data[LEVEL_NUMBER_INDEX])
-            		)
-            	);
-            }
-        }
+    	try 
+    	{
+    		//try to parse the result 
+    		this.scoreResult = Integer.parseInt(super.getContent().toString());
+		} 
+    	catch (Exception e)
+    	{
+    		//any issue we will assign a default value
+    		this.scoreResult = 0;
+    	}
 	}
 	
 	/**
-	 * Have we completed this level
-	 * @param numberColors The difficulty setting for the number of colors
-	 * @param numberLevel The level index we want to check
-	 * @return true if the specified parameters match our list, false otherwise
+	 * Update the score record if it is greater
+	 * @param scoreResult The score result we want to check
+	 * @return true if the scoreResult is a new record, false otherwise
 	 */
-	public boolean hasCompleted(final int numberColors, final int numberLevel)
+	public boolean update(final int scoreResult)
 	{
-		for (int i = 0; i < this.levels.size(); i++)
+		if (this.scoreResult < scoreResult)
 		{
-			//if no match, skip to the next
-			if (this.levels.get(i).numberColors != numberColors)
-				continue;
-			if (this.levels.get(i).numberLevel != numberLevel)
-				continue;
+			//update result
+			this.scoreResult = scoreResult;
 			
-			//we have a match
+			//save the new record
+			save();
+			
+			//return true because we set a record
 			return true;
 		}
-		
-		//we do not have a match
-		return false;
+		else
+		{
+			//no record has been set
+			return false;
+		}
 	}
 	
 	/**
-	 * Add the level data to our saved list
-	 * @param numberColors The difficulty setting for the number of colors
-	 * @param numberLevel The level index we want to check
-	 * @return true if the level data was added, false otherwise
+	 * Get the score result of the best record
+	 * @return The current record set
 	 */
-	public boolean update(final int numberColors, final int numberLevel)
+	public int getScoreResult()
 	{
-		//check the entire list
-		for (int i = 0; i < this.levels.size(); i++)
-		{
-			//if we already have, no need to add
-			if (this.levels.get(i).numberColors == numberColors && 
-				this.levels.get(i).numberLevel == numberLevel)
-				return false;
-		}
-		
-		//add the new level data to the list
-		this.levels.add(new LevelData(numberColors, numberLevel));
-		
-		//save the data
-		save();
-		
-		//we were successful updating
-		return true;
+		return this.scoreResult;
 	}
 	
     /**
-     * Save the levels to the internal storage
+     * Save the record to the android internal storage
      */
     @Override
     public void save()
@@ -129,15 +78,8 @@ public class Score extends Internal
         //remove all existing content
         super.getContent().delete(0, super.getContent().length());
         
-        for (int i = 0; i < this.levels.size(); i++)
-        {
-            //if content exists, add delimiter to separate each level
-            if (super.getContent().length() > 0)
-                super.getContent().append(NEW_SCORE);
-            
-            //write colors, and level number
-            super.getContent().append(this.levels.get(i).getData());
-        }
+        //write the new score
+        super.getContent().append(this.scoreResult);
         
         //save the content to physical internal storage location
         super.save();
@@ -147,31 +89,5 @@ public class Score extends Internal
     public void dispose()
     {
     	super.dispose();
-    	
-    	if (this.levels != null)
-    	{
-    		this.levels.clear();
-    		this.levels = null;
-    	}
-    }
-    
-    private class LevelData
-    {
-    	private final int numberColors, numberLevel;
-    	
-    	private LevelData(final int numberColors, final int numberLevel)
-    	{
-    		this.numberColors = numberColors;
-    		this.numberLevel = numberLevel;
-    	}
-    	
-    	/**
-    	 * Get the level data
-    	 * @return The level data formatted to be saved to the hard drive
-    	 */
-    	private String getData()
-    	{
-    		return this.numberColors + SCORE_DATA + this.numberLevel;
-    	}
     }
 }

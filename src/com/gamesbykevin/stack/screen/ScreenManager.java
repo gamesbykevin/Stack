@@ -26,11 +26,11 @@ public final class ScreenManager implements Screen, Disposable
      */
     public enum State 
     {
-        Ready, Running, Paused, Options, Exit, GameOver
+        Ready, Running, Paused, Options, GameOver
     }
     
     //the current state of the game
-    private State state = State.Ready;
+    private State state = null;
     
     //our game panel
     private final GamePanel panel;
@@ -100,7 +100,6 @@ public final class ScreenManager implements Screen, Disposable
         this.screens = new HashMap<State, Screen>();
         this.screens.put(State.Ready, new MenuScreen(this));
         this.screens.put(State.Paused, new PauseScreen(this));
-        this.screens.put(State.Exit, new ExitScreen(this));
         this.screens.put(State.Options, new OptionsScreen(this));
         this.screens.put(State.GameOver, new GameoverScreen(this));
         this.screens.put(State.Running, new GameScreen(this));
@@ -217,41 +216,35 @@ public final class ScreenManager implements Screen, Disposable
 	        }
 	        else if (state == State.Ready)
 	        {
-	        	//if we are on the menu for the first time or coming from any state besides the options
-	        	if (getState() == null || getState() != State.Options)
+	        	//if we are on the menu for the first time
+	        	if (getState() == null)
 	        	{
 	        		//stop all sound
 	        		Audio.stop();
 	        		
 	        		//play menu theme
-	        		Assets.playMenuTheme();
+	        		Assets.playTheme();
 	        	}
 	        }
-	        //if resuming from paused state
 	        else if (getState() == State.Paused)
 	        {
         		//stop all sound
         		Audio.stop();
         		
         		//if we are to continue running the game
-	        	if (state == State.Running)
+	        	if (state != State.Paused)
 	        	{
 		        	//play the main theme
-	        		Assets.playMainTheme();
-	        	}
-	        	else if (state == State.Ready || state == State.Options)
-	        	{
-	        		//play menu theme
-	        		Assets.playMenuTheme();
+	        		Assets.playTheme();
 	        	}
 	        }
-	        else if (state == State.Running && getState() == State.Ready)
+	        else if (getState() == null)
 	        {
 	        	//stop all sound
 	        	Audio.stop();
 	        		
 	        	//play the main theme
-        		Assets.playMainTheme();
+        		Assets.playTheme();
 	        }
     	}
     	finally
@@ -310,15 +303,6 @@ public final class ScreenManager implements Screen, Disposable
                 	//darken the background if the game exists
                 	if (getScreenGame().getGame() != null)
                 		darkenBackground(canvas);
-                    
-                    if (getScreen(getState()) != null)
-                        getScreen(getState()).render(canvas);
-                    break;
-                    
-                case Exit:
-                	
-                    //darken background
-                    darkenBackground(canvas);
                     
                     if (getScreen(getState()) != null)
                         getScreen(getState()).render(canvas);

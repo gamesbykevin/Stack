@@ -2,13 +2,11 @@ package com.gamesbykevin.stack.game;
 
 import com.gamesbykevin.androidframework.resources.Images;
 import com.gamesbykevin.stack.assets.Assets;
+import com.gamesbykevin.stack.number.Number;
 import com.gamesbykevin.stack.piece.PieceHelper;
 import com.gamesbykevin.stack.screen.ScreenManager;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
 
 /**
  * Game helper methods
@@ -30,11 +28,6 @@ public final class GameHelper
 	 * Is the game over?
 	 */
 	public static boolean GAMEOVER = false;
-	
-	/**
-	 * Do we go to the exit game screen
-	 */
-	public static boolean EXIT_GAME = false;
 	
     /**
      * Size of in-game buttons
@@ -64,8 +57,18 @@ public final class GameHelper
     {
     	if (RESET)
     	{
-    		//reset attempts count
-    		game.getNumber().setNumber(0);
+    		//reset turns count
+    		game.getCurrent().setNumber(0);
+    		
+    		//make sure record is up to date
+    		game.getRecord().setX(Number.BEST_RECORD_X);
+    		game.getRecord().setNumber(game.getScore().getScoreResult());
+    		
+    		//reset board
+    		game.getBoard().reset();
+    		
+    		//create a new piece
+    		game.createPiece();
     		
     		//flag reset false now that we have finished
     		RESET = false;
@@ -76,58 +79,49 @@ public final class GameHelper
     	else
     	{
     		//if we want to exit the current game
-    		if (EXIT_GAME)
+    		if (GAMEOVER)
     		{
-    			//flag false
-    			EXIT_GAME = false;
-    			
-    			//set exit screen state
-    			game.getScreen().setState(ScreenManager.State.Exit);
-    			
-    			//no need to continue
-    			return;
+    			if (PieceHelper.hasDeadCompleted(game.getPiece()))
+    			{
+					//vibrate phone
+					game.vibrate();
+
+	    			//flag false
+	    			GAMEOVER = false;
+	    			
+	    			//set game over screen state
+	    			game.getScreen().setState(ScreenManager.State.GameOver);
+	    			
+	    			//no need to continue
+	    			return;
+    			}
+    			else
+    			{
+    				//update the piece
+    				game.getPiece().update(game.getBoard());
+    			}
     		}
     		else
     		{
-				//update the game piece location/velocity etc...
-				game.getPiece().update(game.getBoard().getTop());
-				
-    			//if we stopped the piece
-    			if (game.getPiece().hasStop())
+    			if (game.getBoard().hasDestination())
     			{
-    				
-    				//if there are no more blocks to destroy and the game is not over
-    				if (PieceHelper.hasDeadCompleted(game.getPiece()) && !GAMEOVER)
-    				{
-    					//add the current piece to the board
-    					game.getBoard().add(game.getPiece());
-    					
+					//update the game piece location/velocity etc...
+					game.getPiece().update(game.getBoard());
+    			}
+    			else
+    			{
+					//update the board
+					game.getBoard().update();
+					
+					//if the pieces are correctly in place, we can spawn a new piece
+					if (game.getBoard().hasDestination())
+					{
     					//create a new piece
     					game.createPiece();
     					
     					//add 1 to our total number of attempts
-    					game.getNumber().setNumber(game.getNumber().getNumber() + 1);
-    					
-    					/*
-    					//if there is at least 1 active block the game will continue
-    					if (game.getPiece().getBlockCount() > 0)
-    					{
-        					//add the current piece to the board
-        					game.getBoard().add(game.getPiece());
-        					
-        					//create a new piece
-        					game.createPiece();
-        					
-        					//add 1 to our total number of attempts
-        					game.getNumber().setNumber(game.getNumber().getNumber() + 1);
-    					}
-    					else
-    					{
-    						//game is over now!!!
-    						GAMEOVER = true;
-    					}
-    					*/
-    				}
+    					game.getCurrent().setNumber(game.getCurrent().getNumber() + 1);
+					}
     			}
     		}
     	}
@@ -148,11 +142,17 @@ public final class GameHelper
     	}
     	else
     	{
-    		//render our number of successful attempts
-    		game.getNumber().render(canvas);
-
     		//draw all existing pieces on the board
     		game.getBoard().render(canvas);
+    		
+    		//render our number of successful attempts
+    		game.getCurrent().render(canvas);
+
+    		//render the current record
+    		game.getRecord().render(canvas);
+    		
+    		//render the best record text
+    		canvas.drawBitmap(Images.getImage(Assets.ImageGameKey.BestText), Number.BEST_RECORD_X_TEXT, Number.BEST_RECORD_Y, null);
     		
     		//render the current piece
     		game.getPiece().render(canvas);

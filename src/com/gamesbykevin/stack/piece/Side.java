@@ -4,6 +4,7 @@ import com.gamesbykevin.androidframework.resources.Disposable;
 import com.gamesbykevin.stack.thread.MainThread;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
@@ -37,7 +38,17 @@ public class Side extends Path implements Disposable
 	/**
 	 * How many frames is this side allowed to be dead (visible)
 	 */
-	private static final float FRAMES_LIMIT = (MainThread.FPS / 4);
+	private static final float FRAMES_LIMIT = (MainThread.FPS / 5);
+	
+	/**
+	 * The factor at which to adjust the color for the east
+	 */
+	private static final float FACTOR_EAST = 0.5f;
+	
+	/**
+	 * The factor at which to adjust the color for the south
+	 */
+	private static final float FACTOR_SOUTH = 0.75f;
 	
 	/**
 	 * 100% visible
@@ -46,9 +57,6 @@ public class Side extends Path implements Disposable
 
 	//the boundaries of this side
 	private float colW, colE, rowN, rowS;	
-	
-	//is this side complete?
-	private boolean complete = false;
 	
 	/**
 	 * Default Constructor
@@ -74,23 +82,6 @@ public class Side extends Path implements Disposable
 		this.colE = colE;
 		this.rowN = rowN;
 		this.rowS = rowS;
-	}
-	
-	/**
-	 * Flag the side completed
-	 */
-	public void flagComplete()
-	{
-		this.complete = true;
-	}
-	
-	/**
-	 * Is this side complete?
-	 * @return true if this side is done moving, false otherwise
-	 */
-	public boolean isComplete()
-	{
-		return this.complete;
 	}
 	
 	/**
@@ -150,8 +141,8 @@ public class Side extends Path implements Disposable
 			case East:
 				super.moveTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece));
 				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece));
-				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece) + (PieceHelper.ROW_HEIGHT / 2));
-				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + (PieceHelper.ROW_HEIGHT / 2));
+				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece) + PieceHelper.ROW_HEIGHT_RENDER);
+				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + PieceHelper.ROW_HEIGHT_RENDER);
 				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece));
 				super.lineTo(getLocationX(colE, rowN, piece), getLocationY(colE, rowN, piece));
 				break;
@@ -160,8 +151,8 @@ public class Side extends Path implements Disposable
 				super.moveTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece));
 				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece));
 				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece));
-				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + (PieceHelper.ROW_HEIGHT / 2));
-				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece) + (PieceHelper.ROW_HEIGHT / 2));
+				super.lineTo(getLocationX(colE, rowS, piece), getLocationY(colE, rowS, piece) + PieceHelper.ROW_HEIGHT_RENDER);
+				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece) + PieceHelper.ROW_HEIGHT_RENDER);
 				super.lineTo(getLocationX(colW, rowS, piece), getLocationY(colW, rowS, piece));
 				break;
 				
@@ -222,9 +213,11 @@ public class Side extends Path implements Disposable
 	 * Render the side
 	 * @param canvas
 	 * @param paint
-	 * @throws Exception 
+	 * @param piece
+	 * @param color
+	 * @throws Exception
 	 */
-	public void render(final Canvas canvas, final Paint paint, final Piece piece) throws Exception
+	public void render(final Canvas canvas, final Paint paint, final Piece piece, final int color) throws Exception
 	{
 		//if we are not to be displayed don't continue
 		if (hasDeadCompleted())
@@ -234,9 +227,8 @@ public class Side extends Path implements Disposable
 		if (this.colW - this.colE == 0 || this.rowN - this.rowS == 0)
 			return;
 		
-		//calculate the coordinates for rendering if we are still moving
-		if (!isComplete())
-			calculate(piece);
+		//calculate the coordinates for rendering
+		calculate(piece);
 		
 		//the alpha transparency
 		int alpha = OPAQUE;
@@ -251,14 +243,37 @@ public class Side extends Path implements Disposable
 			alpha = (int)(progress * OPAQUE);
 		}
 		
-		//render the shape
-		paint.setARGB(alpha, 0, 255, 0);
-		paint.setStyle(Style.FILL);
-		canvas.drawPath(this, paint);
+		//different values that make up a color
+		int r = Color.red(color);
+		int g = Color.green(color);
+		int b = Color.blue(color);
 		
-		//render the outline of the shape
-		paint.setARGB(alpha, 0, 0, 0);
-		paint.setStyle(Style.STROKE);
+		//alter the color accordingly
+		switch (getType())
+		{
+			case Top:
+				//don't need to alter color of the roof
+				break;
+				
+			case East:
+				r = Math.min(Math.round(r * FACTOR_EAST), 255);
+				g = Math.min(Math.round(g * FACTOR_EAST), 255);
+				b = Math.min(Math.round(b * FACTOR_EAST), 255);
+				break;
+				
+			case South:
+				r = Math.min(Math.round(r * FACTOR_SOUTH), 255);
+				g = Math.min(Math.round(g * FACTOR_SOUTH), 255);
+				b = Math.min(Math.round(b * FACTOR_SOUTH), 255);
+				break;
+				
+			default:
+				throw new Exception("Type not supported = " + getType());
+		}
+		
+		//set fill and render shape
+		paint.setARGB(alpha, r, g, b);
+		paint.setStyle(Style.FILL);
 		canvas.drawPath(this, paint);
 	}
 }

@@ -46,8 +46,8 @@ public final class Game implements IGame
      */
 	public static final int VIBRATE_ENABLED = 0;
 	
-    //object for rendering a number
-    private Number number;
+    //object for rendering the current total, and best record
+    private Number current, record;
     
     //the game score card
     private Score score;
@@ -62,11 +62,21 @@ public final class Game implements IGame
         //our main screen object reference
         this.screen = screen;
         
-        //create new number object and position it
-        this.number = new Number();
-        
-        //create our score card
+        //create our score card to track the best record
         this.score = new Score(screen.getPanel().getActivity());
+        
+        //create new number object for our current play
+        this.current = new Number(true);
+        this.current.setY(Number.CURRENT_START_Y);
+        this.current.setWidth(Number.NUMBER_RENDER_WIDTH);
+        this.current.setHeight(Number.NUMBER_RENDER_HEIGHT);
+        
+        //create new number object for the best record
+        this.record = new Number(false);
+        this.record.setX(Number.BEST_RECORD_X);
+        this.record.setY(Number.BEST_RECORD_Y);
+        this.record.setWidth(Number.NUMBER_RENDER_WIDTH_SMALL);
+        this.record.setHeight(Number.NUMBER_RENDER_HEIGHT_SMALL);
         
         //create a new board
         this.board = new Board();
@@ -104,12 +114,21 @@ public final class Game implements IGame
     }
     
     /**
-     * Get the number object
-     * @return Our number object reference for rendering lives
+     * Get the number object for the current total
+     * @return Our number object reference for rendering etc...
      */
-    public Number getNumber()
+    public Number getCurrent()
     {
-    	return this.number;
+    	return this.current;
+    }
+    
+    /**
+     * Get the number object for our personal best
+     * @return Our number object reference for rendering etc...
+     */
+    public Number getRecord()
+    {
+    	return this.record;
     }
     
     /**
@@ -238,10 +257,16 @@ public final class Game implements IGame
     {
         this.paint = null;
         
-    	if (this.number != null)
+    	if (this.current != null)
     	{
-    		this.number.dispose();
-    		this.number = null;
+    		this.current.dispose();
+    		this.current = null;
+    	}
+    	
+    	if (this.record != null)
+    	{
+    		this.record.dispose();
+    		this.record = null;
     	}
     	
     	if (this.score != null)

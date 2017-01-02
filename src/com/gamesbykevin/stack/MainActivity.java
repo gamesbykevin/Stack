@@ -22,13 +22,13 @@ public final class MainActivity extends Activity
     /**
      * The web address where this game can be rated
      */
-    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.mastermind";
+    public static final String WEBPAGE_RATE_URL = "https://play.google.com/store/apps/details?id=com.gamesbykevin.stack";
 
     /**
      * The url that contains the instructions for the game
      */
-    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2016/07/04/mastermind";
-    
+    public static final String WEBPAGE_GAME_INSTRUCTIONS_URL = "http://gamesbykevin.com/2017/01/02/stack";
+    															
     /**
      * The face book url
      */

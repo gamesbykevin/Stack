@@ -35,19 +35,14 @@ public class GameoverScreen implements Screen, Disposable
     private boolean display = false;
     
     /**
-     * The text to display when playing next level
-     */
-    private static final String BUTTON_TEXT_NEXT = "Next";
-    
-    /**
      * The text to display for the menu
      */
     private static final String BUTTON_TEXT_MENU = "Menu";
     
     /**
-     * The text to display for the menu
+     * The text to display for retrying
      */
-    private static final String BUTTON_TEXT_LEVEL = "Level";
+    private static final String BUTTON_TEXT_RETRY = "Retry";
     
     //list of buttons
     private HashMap<Key, Button> buttons;
@@ -59,7 +54,7 @@ public class GameoverScreen implements Screen, Disposable
      */
     public enum Key
     {
-    	Next, Menu, Rate, Level
+    	Retry, Menu, Rate
     }
     
     //the menu selection made
@@ -75,6 +70,9 @@ public class GameoverScreen implements Screen, Disposable
      */
     public static final int TEXT_Y = ScreenManager.LOGO_Y;
 
+    //do we have a new record
+    private boolean newRecord = false;
+    
     /**
      * Create the game over screen
      * @param screen Parent screen manager object
@@ -92,10 +90,7 @@ public class GameoverScreen implements Screen, Disposable
         int x = ScreenManager.BUTTON_X;
         
         //create our buttons
-        addButton(x, y, Key.Next, BUTTON_TEXT_NEXT);
-        
-        y += ScreenManager.BUTTON_Y_INCREMENT;
-        addButton(x, y, Key.Level, BUTTON_TEXT_LEVEL);
+        addButton(x, y, Key.Retry, BUTTON_TEXT_RETRY);
         
         y += ScreenManager.BUTTON_Y_INCREMENT;
         addButton(x, y, Key.Menu, BUTTON_TEXT_MENU);
@@ -241,18 +236,7 @@ public class GameoverScreen implements Screen, Disposable
 			//handle each button different
 			switch (getSelection())
 			{
-				case Level:
-					
-	                //move back to the game
-					getScreen().setState(ScreenManager.State.Running);
-					
-	                //play sound effect
-					Assets.playMenuSelection();
-					
-	                //end of case
-					break;
-			
-				case Next:
+				case Retry:
 					
 	                //reset with the same settings
 					GameHelper.RESET = true;
@@ -306,8 +290,11 @@ public class GameoverScreen implements Screen, Disposable
 	            //if time has passed display menu
 	            if (this.frames >= MENU_DISPLAY_FRAMES_DELAY)
 	            {
-	            	//determine what button text is displayed
-	            	buttons.get(Key.Next).setDescription(0, BUTTON_TEXT_NEXT);
+	            	//get our score
+	            	final int scoreResult = getScreen().getScreenGame().getGame().getCurrent().getNumber(); 
+	            	
+	            	//check if we have set a new record
+	            	this.newRecord = getScreen().getScreenGame().getGame().getScore().update(scoreResult);
 	            	
 	            	//display the menu
 	            	setDisplay(true);
@@ -328,6 +315,9 @@ public class GameoverScreen implements Screen, Disposable
         {
             //only darken the background when the menu is displayed
             ScreenManager.darkenBackground(canvas);
+            
+            //if new record, render different image, else display "Game Over"
+            canvas.drawBitmap(Images.getImage((newRecord) ?  Assets.ImageMenuKey.NewRecord : Assets.ImageMenuKey.Gameover), 40, 20, getScreen().getPaint());
             
             //render the buttons
             for (Key key : Key.values())
